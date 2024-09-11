@@ -53,6 +53,7 @@ def miniblock_length_math(trials_per_miniblock, stim, delay, retro, exp_totaltim
     # Extracting parameters from the stimulus dictionary
     syllable_len = stim["length"]
     syllable_gap = stim["gap"]
+    syllables = stim["syllables"]
 
     # Extracting parameters from the delay dictionary
     delay1_length = delay["delay1_length"]
@@ -80,6 +81,8 @@ def miniblock_length_math(trials_per_miniblock, stim, delay, retro, exp_totaltim
     print(f"Average miniblock length: {miniblock_length:.2f} seconds, i.e., {miniblock_length/60:.2f} minutes")
     print(f"Remaining time: {current_remaining_time:.2f} seconds")
     print(f"For the given parameters, each block contains: {miniblock_per_block:.0f} miniblocks")
+    print(f"For the given parameters, the same sayllble can be repeated \
+{(len(syllables) - 1) * int(miniblock_per_block):.0f} times for EACH BLOCK")
 
     # Calculate the number of blocks and optimal block length
     best_block_length = None
@@ -101,5 +104,9 @@ def miniblock_length_math(trials_per_miniblock, stim, delay, retro, exp_totaltim
             best_block_length = block_length
             optimal_block_count = total_blocks
 
+    print("    ")
     print(f"Suggested block length: {best_block_length:.0f} seconds, i.e., {best_block_length/60:.2f} minutes")
     print(f"Suggested block counts: {optimal_block_count:.0f}")
+
+    print(f"For the suggested version, the same sayllble can be repeated \
+{(len(syllables)-1) * int(optimal_block_count) * int(best_block_length // miniblock_length):.0f} times for the ENTIRE EXPERIMENT")
