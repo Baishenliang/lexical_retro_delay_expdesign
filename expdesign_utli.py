@@ -449,6 +449,26 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
             best_trials=random.choice(valid_trials)
         return best_trials
 
+    #Inserted function 7:
+    # Geneate random delay jitter
+    def random_jitter(sd, method):
+        """
+        Generate a random number based on the specified method.
+
+        Parameters:
+        sd (float): Standard deviation for the distribution.
+        method (str): Method of distribution, either "uniform" or "gaussian".
+
+        Returns:
+        float: Randomly generated number.
+        """
+        if method == "uniform":
+            return random.uniform(-sd, sd)
+        elif method == "gaussian":
+            return np.random.normal(0, sd)
+        else:
+            raise ValueError("Method must be either 'uniform' or 'gaussian'")
+
     # Function body
 
     num_miniblock_inblock=int(num_miniblock_inblock)
@@ -518,11 +538,22 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
             valid_trials = get_valid_trials_sequence(randomized_trials_candidate, stim, retro,threshold)
             best_trials = get_best_trials_sequence(valid_trials)
 
-
             for trial in best_trials:
                 # Extract the syllable pair and retrocue type for the trial
                 syllables, retrocue = trial
-
+                if retrocue == "REP_BTH":
+                    Delay2_content = syllables[0] + '_' + syllables[1]
+                elif retrocue == "REV_BTH":
+                    Delay2_content = syllables[1] + '_' + syllables[0]
+                elif retrocue == "REP_1ST":
+                    Delay2_content = syllables[0]
+                elif retrocue == "REP_2ND":
+                    Delay2_content = syllables[1]
+                elif retrocue == "DRP_BTH":
+                    Delay2_content = ''
+                delay_1 = delay["delay1_length"]+random_jitter(delay["delay_1_jitter_sd"],delay["jitter_random"])
+                delay_2 = delay["delay2_length"]+random_jitter(delay["delay_2_jitter_sd"],delay["jitter_random"])
+                ITI = delay['iti']+random_jitter(delay["iti_jitter_sd"],delay["jitter_random"])
                 # Construct trial information
                 trial_info = {
                     "Trial": trial_id,
@@ -531,10 +562,12 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
                     "Syllable_1": syllables[0],
                     "Syllable_2": syllables[1],
                     "Retrocue": retrocue,
-                    "Delay1_Length": delay["delay1_length"],
-                    "Delay2_Length": delay["delay2_length"],
-                    "Total_Trial_Length": stim["length"] * 2 + stim["gap"] + delay["delay1_length"] + retro[
-                        "retro_length"] + delay["delay2_length"]
+                    "Delay1_Length": delay_1,
+                    "Delay2_Length": delay_2,
+                    "Delay2_content": Delay2_content,
+                    "ITI_Length": ITI,
+                    "Total_Trial_Length": stim["length"] * 2 + stim["gap"] + delay_1 + retro[
+                        "retro_length"] + delay_2 + delay["response_length"] + ITI
                 }
 
                 # Append the trial to the trial list
