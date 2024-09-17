@@ -531,7 +531,7 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
 
             threshold = {
                 "uniformity": 0.7,  # The standard deviation of the trial distribution should be less than 1
-                "midpoint": 10,  # The mean position of the syllable/retrocue should be within 3 trials of the midpoint
+                "midpoint": 15,  # The mean position of the syllable/retrocue should be within 3 trials of the midpoint
                 "transition": 3  # The standard deviation of transition counts between trials should be less than 0.5
             }
 
