@@ -118,7 +118,7 @@ def miniblock_length_math(trials_per_miniblock, stim, delay, retro, exp_totaltim
     print(f"Suggested block counts: {optimal_block_count:.0f}")
 
     num_miniblock_inblock=int(best_block_length // miniblock_length)
-    print(f"For the suggested version, the same sayllble can be repeated \
+    print(f"The same syllable in same position can be repeated \
 {(len(syllables)-1) * int(optimal_block_count) * num_miniblock_inblock:.0f} times for the ENTIRE EXPERIMENT")
 
     return num_miniblock_inblock, optimal_block_count
@@ -374,8 +374,8 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
     def loop_and_plot_valid_trials(randomized_trials_candidate, stim, retro):
         # Define the ranges for the threshold values
         # Transition is not good. Ingore it.
-        uniformity_range = np.arange(0.05, 1, 0.2)
-        midpoint_range = np.arange(0, 20, 2)
+        uniformity_range = np.arange(0, 0.05, 0.01)
+        midpoint_range = np.arange(1.5, 3, 0.25)
         #transition_range = np.arange(0.05, 1.05, 0.2)
 
         results = []
@@ -388,7 +388,7 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
             threshold = {
                 "uniformity": uniformity,
                 "midpoint": midpoint,
-                "transition": 3
+                "transition": 10
             }
 
             valid_trials = get_valid_trials_sequence(randomized_trials_candidate, stim, retro, threshold)
@@ -418,7 +418,9 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
         ax.set_ylabel('Midpoint')
         ax.set_zlabel('NO. of valid trial sequences')
 
-        plt.title('3D Plot of Valid Trials Length')
+        plt.title('3D Plot of Valid Trial Sequence')
+        plt.savefig('D:\\bsliang_Coganlabcode\\lexical_retro_delay_expdesign\\valid_sequence.png')
+
         plt.show()
 
     #Inserted function 6:
@@ -488,91 +490,102 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
 
     # 4. Loop through each block and miniblock to generate trials
     trial_id = 1
-    for block_id in range(1, optimal_block_count + 1):
-        for miniblock_id in range(1, num_miniblock_inblock + 1):
 
-            #Repeat this part 1000 times, and for each successful attempt
-            #save the `randomized_trials` into `randomized_trials_candidate
+    #Repeat this part 1000 times, and for each successful attempt
+    #save the `randomized_trials` into `randomized_trials_candidate
 
-            get_RDtrialscomb_maxnum = 1000  # Initialize attempt counter
-            get_RDtrialscomb = 1
-            randomized_trials_candidate = []  # List to store each valid randomized trial sequence
+    get_RDtrialscomb_maxnum = 1000  # Initialize attempt counter
+    get_RDtrialscomb = 1
+    randomized_trials_candidate = []  # List to store each valid randomized trial sequence
 
 
-            # Retry until a valid combination is found or the attempt limit is reached
-            while get_RDtrialscomb <= get_RDtrialscomb_maxnum:
+    # Retry until a valid combination is found or the attempt limit is reached
+    while get_RDtrialscomb <= get_RDtrialscomb_maxnum:
 
-                # Randomize the trial order within the miniblock
-                attempt_count = 0  # Initialize attempt counter
+        # Randomize the trial order within the miniblock
+        attempt_count = 0  # Initialize attempt counter
 
-                # Retry until a valid combination is found or the attempt limit is reached
-                while attempt_count < 1000:
-                        # Attempt to get a valid randomized order of trials
-                        randomized_trials,invalid_warn = get_valid_randomized_trials(full_combinations)
-                        print(f"Runing the {get_RDtrialscomb} time of random trial list generation out of {get_RDtrialscomb_maxnum}")
-                        if invalid_warn == 0:
-                            randomized_trials_candidate.append(randomized_trials)
-                            get_RDtrialscomb +=1
-                            print(f"**Successfully** made a miniblock with intra-trial unpredictability for Block {block_id}, Miniblock {miniblock_id}")
-                            break  # If successful, exit the loop
-                        else:
-                            attempt_count += 1
-                            print(
-                                f"Warning: No valid combination found for Block {block_id}, Miniblock {miniblock_id}. Retrying... ({attempt_count})")
+        # Attempt to get a valid randomized order of trials
+        all_randomized_trials=[]
+        for block_id in range(1, optimal_block_count + 1):
+            for miniblock_id in range(1, num_miniblock_inblock + 1):
+                while 1:
+                    randomized_trials,invalid_warn = get_valid_randomized_trials(full_combinations)
+                    if invalid_warn == 0:
+                        all_randomized_trials.extend(randomized_trials)
+                        break
 
-                # if attempt_count >= 1000:
-                #     print(
-                #         f"Error: Failed to generate valid trial order after 1000 attempts for Block {block_id}, Miniblock {miniblock_id}. Exiting script.")
-                #     sys.exit()  # Exit the entire script after 1000 failed attempts
+        randomized_trials_candidate.append(all_randomized_trials)
+        get_RDtrialscomb +=1
+
+        # if attempt_count >= 1000:
+        #     print(
+        #         f"Error: Failed to generate valid trial order after 1000 attempts for Block {block_id}, Miniblock {miniblock_id}. Exiting script.")
+        #     sys.exit()  # Exit the entire script after 1000 failed attempts
 
 
-            # Guessing the best threshold combinations
-            #loop_and_plot_valid_trials(randomized_trials_candidate, stim, retro)
+    # Guessing the best threshold combinations
+    #loop_and_plot_valid_trials(randomized_trials_candidate, stim, retro)
 
-            threshold = {
-                "uniformity": 0.7,  # The standard deviation of the trial distribution should be less than 1
-                "midpoint": 15,  # The mean position of the syllable/retrocue should be within 3 trials of the midpoint
-                "transition": 3  # The standard deviation of transition counts between trials should be less than 0.5
-            }
+    threshold = {
+        "uniformity": 0.04,  # The standard deviation of the trial distribution should be less than 1
+        "midpoint": 3,  # The mean position of the syllable/retrocue should be within 3 trials of the midpoint
+        "transition": 10  # The standard deviation of transition counts between trials should be less than 0.5
+    }
 
-            valid_trials = get_valid_trials_sequence(randomized_trials_candidate, stim, retro,threshold)
-            best_trials = get_best_trials_sequence(valid_trials)
+    valid_trials = get_valid_trials_sequence(randomized_trials_candidate, stim, retro,threshold)
+    best_trials = get_best_trials_sequence(valid_trials)
 
-            for trial in best_trials:
-                # Extract the syllable pair and retrocue type for the trial
-                syllables, retrocue = trial
-                if retrocue == "REP_BTH":
-                    Delay2_content = syllables[0] + '_' + syllables[1]
-                elif retrocue == "REV_BTH":
-                    Delay2_content = syllables[1] + '_' + syllables[0]
-                elif retrocue == "REP_1ST":
-                    Delay2_content = syllables[0]
-                elif retrocue == "REP_2ND":
-                    Delay2_content = syllables[1]
-                elif retrocue == "DRP_BTH":
-                    Delay2_content = ''
-                delay_1 = delay["delay1_length"]+random_jitter(delay["delay_1_jitter_sd"],delay["jitter_random"])
-                delay_2 = delay["delay2_length"]+random_jitter(delay["delay_2_jitter_sd"],delay["jitter_random"])
-                ITI = delay['iti']+random_jitter(delay["iti_jitter_sd"],delay["jitter_random"])
-                # Construct trial information
-                trial_info = {
-                    "Trial": trial_id,
-                    "Block": block_id,
-                    "Miniblock": miniblock_id,
-                    "Syllable_1": syllables[0],
-                    "Syllable_2": syllables[1],
-                    "Retrocue": retrocue,
-                    "Delay1_Length": delay_1,
-                    "Delay2_Length": delay_2,
-                    "Delay2_content": Delay2_content,
-                    "ITI_Length": ITI,
-                    "Total_Trial_Length": stim["length"] * 2 + stim["gap"] + delay_1 + retro[
-                        "retro_length"] + delay_2 + delay["response_length"] + ITI
-                }
+    # Retry until a valid combination is found or the attempt limit is reached
 
-                # Append the trial to the trial list
-                trial_list.append(trial_info)
-                trial_id += 1
+    block_id_output = 1
+    trials_per_block = len(best_trials) // optimal_block_count
+
+    miniblock_id_output = 1
+    trials_per_miniblock = len(best_trials) // (num_miniblock_inblock*optimal_block_count)
+
+    for itrial, trial in enumerate(best_trials):
+        # Extract the syllable pair and retrocue type for the trial
+        syllables, retrocue = trial
+        if retrocue == "REP_BTH":
+            Delay2_content = syllables[0] + '_' + syllables[1]
+        elif retrocue == "REV_BTH":
+            Delay2_content = syllables[1] + '_' + syllables[0]
+        elif retrocue == "REP_1ST":
+            Delay2_content = syllables[0]
+        elif retrocue == "REP_2ND":
+            Delay2_content = syllables[1]
+        elif retrocue == "DRP_BTH":
+            Delay2_content = ''
+        delay_1 = delay["delay1_length"]+random_jitter(delay["delay_1_jitter_sd"],delay["jitter_random"])
+        delay_2 = delay["delay2_length"]+random_jitter(delay["delay_2_jitter_sd"],delay["jitter_random"])
+        ITI = delay['iti']+random_jitter(delay["iti_jitter_sd"],delay["jitter_random"])
+        # Construct trial information
+        trial_info = {
+            "Trial": trial_id,
+            "Block": block_id_output,
+            "Miniblock": miniblock_id_output,
+            "Syllable_1": syllables[0],
+            "Syllable_2": syllables[1],
+            "Retrocue": retrocue,
+            "Delay1_Length": delay_1,
+            "Delay2_Length": delay_2,
+            "Delay2_content": Delay2_content,
+            "ITI_Length": ITI,
+            "Total_Trial_Length": stim["length"] * 2 + stim["gap"] + delay_1 + retro[
+                "retro_length"] + delay_2 + delay["response_length"] + ITI
+        }
+
+        # Append the trial to the trial list
+        trial_list.append(trial_info)
+        trial_id += 1
+
+        # Next trial block and miniblock count
+        if (itrial + 1) % trials_per_block == 0 and block_id_output < optimal_block_count:
+            block_id_output += 1
+
+        if (itrial + 1) % trials_per_miniblock == 0 and miniblock_id_output < optimal_block_count*num_miniblock_inblock:
+            miniblock_id_output += 1
 
     # Convert the trial list to a DataFrame
     df_trials = pd.DataFrame(trial_list)
