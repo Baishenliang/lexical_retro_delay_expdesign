@@ -374,8 +374,8 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
     def loop_and_plot_valid_trials(randomized_trials_candidate, stim, retro):
         # Define the ranges for the threshold values
         # Transition is not good. Ingore it.
-        uniformity_range = np.arange(0, 0.05, 0.01)
-        midpoint_range = np.arange(1.5, 3, 0.25)
+        uniformity_range = np.arange(0, 0.5, 0.1)
+        midpoint_range = np.arange(0, 10, 1)
         #transition_range = np.arange(0.05, 1.05, 0.2)
 
         results = []
@@ -525,11 +525,11 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
 
 
     # Guessing the best threshold combinations
-    #loop_and_plot_valid_trials(randomized_trials_candidate, stim, retro)
+    # loop_and_plot_valid_trials(randomized_trials_candidate, stim, retro)
 
     threshold = {
-        "uniformity": 0.04,  # The standard deviation of the trial distribution should be less than 1
-        "midpoint": 3,  # The mean position of the syllable/retrocue should be within 3 trials of the midpoint
+        "uniformity": 0.3,  # The standard deviation of the trial distribution should be less than 1
+        "midpoint": 8,  # The mean position of the syllable/retrocue should be within 3 trials of the midpoint
         "transition": 10  # The standard deviation of transition counts between trials should be less than 0.5
     }
 
