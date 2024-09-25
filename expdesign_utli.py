@@ -72,13 +72,20 @@ def miniblock_length_math(trials_per_miniblock, stim, delay, retro, exp_totaltim
 
     # Extracting parameters from the retrocue dictionary
     retro_length = retro["retro_length"]
+    retro_names = retro["retro_names"]
+    drp_rate = retro_names.count("DRP_BTH") / len(retro_names)
 
     # Calculate the duration of a single trial
     trial_length = (syllable_len * 2) + syllable_gap + \
                    delay1_length + retro_length + delay2_length + \
                    response_length + iti
 
-    miniblock_length = trial_length*trials_per_miniblock
+    # For drp_both only
+    trial_length_dph = (syllable_len * 2) + syllable_gap + \
+                   delay1_length + retro_length + delay2_length + \
+                    + iti
+
+    miniblock_length = ((1-drp_rate)*trial_length+drp_rate*trial_length_dph)*trials_per_miniblock
 
     # Calculate how many complete trials can fit within the block
     miniblock_per_block = block_length // miniblock_length  # Using integer division to get complete trial count
