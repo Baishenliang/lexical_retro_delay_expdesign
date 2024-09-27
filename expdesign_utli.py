@@ -460,21 +460,24 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
 
     #Inserted function 7:
     # Geneate random delay jitter
-    def random_jitter(sd, method):
+    def random_jitter(dev, method):
         """
         Generate a random number based on the specified method.
 
         Parameters:
-        sd (float): Standard deviation for the distribution.
+        dev (float): std for Gaussian, and max distance from the mean value for Uniform
         method (str): Method of distribution, either "uniform" or "gaussian".
 
         Returns:
         float: Randomly generated number.
         """
         if method == "uniform":
-            return random.uniform(-sd, sd)
+            return random.uniform(-dev, dev)
         elif method == "gaussian":
-            return np.random.normal(0, sd)
+            value = np.random.normal(0, dev)
+            while abs(value) > 0.2: # Gaussian distribution should be in the range of [-0.2 0.2] seconds
+                value = np.random.normal(0, dev)
+            return value
         else:
             raise ValueError("Method must be either 'uniform' or 'gaussian'")
 
@@ -564,10 +567,14 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
             Delay2_content = syllables[1]
         elif retrocue == "DRP_BTH":
             Delay2_content = ''
-        delay_1 = delay["delay1_length"]+random_jitter(delay["delay_1_jitter_sd"],delay["jitter_random"])
-        delay_2 = delay["delay2_length"]+random_jitter(delay["delay_2_jitter_sd"],delay["jitter_random"])
+        delay_1 = delay["delay1_length"]+random_jitter(delay["delay_1_jitter_dev"],delay["jitter_random"])
+        delay_2 = delay["delay2_length"]+random_jitter(delay["delay_2_jitter_dev"],delay["jitter_random"])
         ITI = delay['iti']+random_jitter(delay["iti_jitter_sd"],delay["jitter_random"])
         # Construct trial information
+        if retrocue == "DRP_BTH":
+            Total_Trial_Length = stim["length"] * 2 + stim["gap"] + delay_1 + retro["retro_length"] + delay_2 + ITI
+        else:
+            Total_Trial_Length = stim["length"] * 2 + stim["gap"] + delay_1 + retro["retro_length"] + delay_2 + delay["response_length"] + ITI
         trial_info = {
             "Trial": trial_id,
             "Block": block_id_output,
@@ -579,8 +586,7 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
             "Delay2_Length": delay_2,
             "Delay2_content": Delay2_content,
             "ITI_Length": ITI,
-            "Total_Trial_Length": stim["length"] * 2 + stim["gap"] + delay_1 + retro[
-                "retro_length"] + delay_2 + delay["response_length"] + ITI
+            "Total_Trial_Length": Total_Trial_Length
         }
 
         # Append the trial to the trial list
