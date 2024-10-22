@@ -1,4 +1,4 @@
- function Lexical_Repeat_WithinBlock_2x(subject,practice,startblock)
+ function Retro_Repeat_WithinBlock(subject,practice,startblock)
 % Lexical_Repeat_WithinBlock(subject,practice,startblock)
 % subject = subject number
 % practice =  practice or full task. 1 = 12 trial practice run, 2 = 2 x 42 trials
@@ -14,11 +14,16 @@ sca;
 %subject = 'Test2';
 c = clock;
 subjectDir = fullfile('data', [subject '_' num2str(c(1)) num2str(c(2)) num2str(c(3)) num2str(c(4)) num2str(c(5))]);
+
+
+%==================== change the sound loc==================================
 load('/home/coganlab/Psychtoolbox_Scripts/Lexical_Repeat/TokenCategory.mat');
 
 % Initialize stim from directory
 soundDirW = '/home/coganlab/Psychtoolbox_Scripts/Lexical_Repeat/stim/words/';
 soundDirNW= '/home/coganlab/Psychtoolbox_Scripts/Lexical_Repeat/stim/nonwords/';
+%==========================================================================
+
 nBlocks = 4; % 10
 trialCount=0;
 blockCount=0;
@@ -58,6 +63,8 @@ InitializePsychSound(1);
 
 
 % load sound files
+
+%==================== change the load sound scripts============================
 load stim.mat;
 
 soundValsW=[];
@@ -84,6 +91,9 @@ for iS=1:length(dirValsNW)
 end
 soundValsNonWords = cat(2, soundValsNW, soundValsNW);
 
+%===========================================================================
+
+%==================== load the trial order mat ===================
 % trialorder
 trialOrderWordsOrig=1:trialEnd; % 84
 trialOrderNonWordsOrig=1:trialEnd; % 84
@@ -106,7 +116,7 @@ elseif startblock>1
     load(fullfile('trialorder_data', [subject '_trialOrderAll_Shuffle.mat']));
 end
 
-
+%===========================================================================
 
 % Screen Setup
 PsychDefaultSetup(2);
@@ -158,9 +168,12 @@ end
 
 % Block Loop
 for iB=iBStart:nBlocks %nBlocks;
+
+    %==================== two sound items, one block task ===================
     trialOrderBlockItem=trialOrderAll_Shuffle(1,(iB-1)*trialEnd+1:(iB-1)*trialEnd+trialEnd);
     trialOrderBlockTask=trialOrderAll_Shuffle(2,(iB-1)*trialEnd+1:(iB-1)*trialEnd+trialEnd);
     Screen('TextSize', window, 100);
+    %========================================================================
     
     nTrials=84; %168/4; %rotNumb*3;
     
@@ -182,6 +195,7 @@ for iB=iBStart:nBlocks %nBlocks;
     counterNW=0;
     for i=1:trialEnd %trialEnd; %42
         
+        %==================== five retrocue types   ===================
         if trialOrderBlockTask(i)==1
             trigVal=trialOrderBlockItem(i);
             soundBlockPlay{i}.sound=soundValsWords{trialOrderBlockItem(i)}.sound;
@@ -209,7 +223,8 @@ for iB=iBStart:nBlocks %nBlocks;
             soundBlockPlay{i}.Trigger=trigVal;
             % counterNW=counterNW+1;
         end
-       
+    %========================================================================
+
     end
     
     
@@ -310,6 +325,8 @@ for iB=iBStart:nBlocks %nBlocks;
         end
         trialInfo{trialCount+1}.cueEnd=GetSecs;
         
+        %==================== play two sounds ===================
+
         %Play Sound
         Screen('FillOval', window, circleColor1, centeredCircle, baseCircleDiam);
         PsychPortAudio('FillBuffer', pahandle, sound');
@@ -337,7 +354,7 @@ for iB=iBStart:nBlocks %nBlocks;
             Screen('Flip', window);
         end
         
-        
+    %========================================================================
         
         % % Delay
         
