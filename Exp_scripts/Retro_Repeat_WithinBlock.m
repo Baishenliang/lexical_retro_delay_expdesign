@@ -42,7 +42,14 @@ sound_a = padarray(sound_a, [(max_len - len_a)/2, 0], 0, 'both');
 
 %==========================================================================
 
-nBlocks = 4; % 10
+if practice==1
+    nBlocks = 1;
+    fileSuff = '';
+else
+    nBlocks = 4;
+    fileSuff = '_Pract';
+end
+
 trialCount=0;
 blockCount=0;
 %trialEnd=84; %54
@@ -50,7 +57,6 @@ nrchannels = 1;
 iBStart=startblock;
 freqS = fs;
 freqR = 44100; %20000;
-fileSuff = '';
 baseCircleDiam=75; % diameter of
 
 repetitions = 1;
@@ -66,12 +72,6 @@ elseif ~exist(subjectDir,'dir')
     mkdir(subjectDir)
 end
 
-
-if practice==1 %!!!!!!!!!!!SHOULD DEAL WITH THIS!!!!!!!!!!
-    %trialEnd = 12; %12
-    nBlocks = 1;
-    fileSuff = '_Pract';
-end
 %---------------
 % Sound Setup
 %---------------
@@ -188,6 +188,10 @@ end
 for iB=iBStart:nBlocks %nBlocks;
 
     trial_idx=find(block_No==iB);
+    if practice==1
+        trial_idx=trial_idx(1:12);
+    end
+    
     syll1_trials=Syll1_No(trial_idx);
     syll2_trials=Syll2_No(trial_idx);
     retro_trials=Retro_No(trial_idx);
