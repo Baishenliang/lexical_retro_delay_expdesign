@@ -1,5 +1,5 @@
 function Retro_Repeat_WithinBlock(subject,practice,startblock)
-% Lexical_Repeat_WithinBlock(subject,practice,startblock)
+% Retro_Repeat_WithinBlock(subject,practice,startblock)
 % subject = subject number
 % practice =  practice or full task. 1 = 12 trial practice run, 2 = 2 x 42 trials
 % startblock = block to start from.  1 if new, >1 if needing to finish from
@@ -7,13 +7,15 @@ function Retro_Repeat_WithinBlock(subject,practice,startblock)
 % previously run task
 
 sca;
-[playbackdevID,capturedevID] = getDevices;
+% [playbackdevID,capturedevID] = getDevices;
+playbackdevID=3;
+capturedevID=1;
 
 %playbackdevID = 7; %3; % 4 for usb amp, 3 without
 %capturedevID = 6; %1; % 2 for usb amp, 1 without
 %subject = 'Test2';
 c = clock;
-subjectDir = fullfile('data', [subject '_' num2str(c(1)) num2str(c(2)) num2str(c(3)) num2str(c(4)) num2str(c(5))]);
+subjectDir = fullfile('data', [num2str(subject), '_' num2str(c(1)) num2str(c(2)) num2str(c(3)) num2str(c(4)) num2str(c(5))]);
 
 %============================================
 %        load the sounds
@@ -25,6 +27,7 @@ retro_Tags = {"REP_BTH","REV_BTH","REP_1ST","REP_2ND","DRP_BTH"};
 [sound_i, ~] = audioread(fullfile('stim',[stim_Tags{1},'.wav']));
 [sound_u, ~] = audioread(fullfile('stim',[stim_Tags{2},'.wav']));
 [sound_a, fs] = audioread(fullfile('stim',[stim_Tags{3},'.wav']));
+[tone500, ~]=audioread(fullfile('stim','tone.wav'));
 
 len_i = length(sound_i);
 len_u = length(sound_u);
@@ -51,7 +54,8 @@ end
 trialCount=0;
 blockCount=0;
 %trialEnd=84; %54
-nrchannels = 1;
+nrchannels_rec = 1;
+nrchannels_play = 2;
 iBStart=startblock;
 freqS = fs;
 freqR = 44100; %20000;
@@ -77,7 +81,7 @@ InitializePsychSound(1);
 %           load trials infomation
 %============================================
 
-[trial_No,block_No,Syll1_No,Syll2_No,Retro_No]=read_trials(subject,stim_Tags,retro_Tags);
+[~,block_No,Syll1_No,Syll2_No,Retro_No]=read_trials(subject,stim_Tags,retro_Tags);
 
 %============================================
 %                screen setup
@@ -205,23 +209,36 @@ for iB=iBStart:nBlocks %nBlocks;
     %binCodeVals=repmat(binCodeVals,3,1);
 
     % Setup recording!
-    %pahandle = PsychPortAudio('Open', [], 1, 1, freq, nrchannels,64);
-    pahandle2 = PsychPortAudio('Open', capturedevID, 2, 0, freqR, nrchannels,0, 0.015);
-
+    pahandle2 = PsychPortAudio('Open', capturedevID, 2, 0, freqR, nrchannels_rec,0, 0.015);
     % Preallocate an internal audio recording  buffer with a capacity of 10 seconds:
     PsychPortAudio('GetAudioData', pahandle2, 9000); %nTrials
-
-    %PsychPortAudio('Start', pahandle, repetitions, StartCue, WaitForDeviceStart);
     PsychPortAudio('Start', pahandle2, 0, 0, 1);
 
-    % play tone!
-    tone500=audioread('/home/coganlab/Psychtoolbox_Scripts/Lexical_Repeat/stim/tone500_3.wav');
-    % tone500=.5*tone500;
-    pahandle = PsychPortAudio('Open', playbackdevID, 1, 2, freqS, nrchannels,0, 0.015);
+    % Setup audio replay
+    pahandle = PsychPortAudio('Open', playbackdevID, 1+8, 2, freqS, nrchannels_play,0, 0.015);
     PsychPortAudio('Volume', pahandle, 1); % volume
-    PsychPortAudio('FillBuffer', pahandle, 0.005*tone500');
-    PsychPortAudio('Start', pahandle, repetitions, StartCue, WaitForDeviceStart);
+
+    % load sound buffer
+    soundBuffer{1,1}=PsychPortAudio('OpenSlave', pahandle,1,2);
+    PsychPortAudio('FillBuffer', soundBuffer{1,1}, [sound_i,sound_i]');
+    
+    soundBuffer{1,2}=PsychPortAudio('OpenSlave', pahandle,1,2);
+    PsychPortAudio('FillBuffer', soundBuffer{1,2},  [sound_u,sound_u]');
+    
+    soundBuffer{1,3}=PsychPortAudio('OpenSlave', pahandle,1,2);
+    PsychPortAudio('FillBuffer', soundBuffer{1,3}, [sound_a,sound_a]');
+    
+    soundBuffer{1,4}=PsychPortAudio('OpenSlave', pahandle,1,2);
+    PsychPortAudio('FillBuffer', soundBuffer{1,4}, [tone500,tone500]');
+
+    % Start pahandle
+    PsychPortAudio('Start', pahandle,0,0);
+
+    % Play the tone
+    %PsychPortAudio('Start', pahandle, repetitions, StartCue, WaitForDeviceStart);
+    PsychPortAudio('Start',soundBuffer{1, 4},repetitions,StartCue,WaitForDeviceStart);
     PsychPortAudio('Volume', pahandle, 0.5);
+
     toneTimeSecs = (freqS+length(tone500))./freqS; %max(cat(1,length(kig),length(pob)))./freqS;
     toneTimeFrames = ceil(toneTimeSecs / ifi);
     for i=1:toneTimeFrames
@@ -230,24 +247,32 @@ for iB=iBStart:nBlocks %nBlocks;
         % Flip to the screen
         Screen('Flip', window);
     end
+
+    PsychPortAudio('Stop',soundBuffer{1, 4});
+
+    % Rprelat = PsychPortAudio('LatencyBias', pahandle, 0) ;%#ok<NOPRT,NASGU>
+    % postlat = PsychPortAudio('LatencyBias', pahandle);
+
     %
     %while ~kbCheck
     ifi_window = Screen('GetFlipInterval', window);
     suggestedLatencySecs = 0.015;
     waitframes = ceil((2 * suggestedLatencySecs) / ifi_window) + 1;
-    prelat = PsychPortAudio('LatencyBias', pahandle, 0) ;%#ok<NOPRT,NASGU>
-    postlat = PsychPortAudio('LatencyBias', pahandle);
     Priority(2);
+
     for iTrials=1:length(trial_idx) %trialEnd ;%nTrials %nTrials;
 
         %============================================
         %         get prepared for a trial
         %============================================
-        if pause_script(window)
-            PsychPortAudio('close');
-            sca;
-            return;
-        end
+
+        
+        % ! Currently I don't have the pase_script
+        % if pause_script(window)
+        %     PsychPortAudio('close');
+        %     sca;
+        %     return;
+        % end
 
         switch retro_trials(iTrials)
             case 1 % REP_BTH
@@ -262,17 +287,18 @@ for iB=iBStart:nBlocks %nBlocks;
                 cue='0';
         end
 
-        sound1=soundBlockPlay{iTrials}.sound1;%eval(trialStruct.sound{trialShuffle(2,iTrials)});
+        % WE DONT NEED THIS
+        sound1=soundBlockPlay{iTrials}.sound1;
         sound1=sound1(:,1);
-        sound2=soundBlockPlay{iTrials}.sound2;%eval(trialStruct.sound{trialShuffle(2,iTrials)});
-        sound2=sound1(:,2);
+        sound2=soundBlockPlay{iTrials}.sound2;
+        sound2=sound2(:,1);
 
-        go='Speak'; %trialStruct.go{trialShuffle(3,iTrials)};
+        go='Speak'; 
 
         delTimeBaseSeconds=delTimeBaseSecondsA;
         respTimeSeconds=respTimeSecondsA;
 
-        sound1TimeSecs = length(sound1)./freqS; %max(cat(1,length(kig),length(pob)))./freqS;
+        sound1TimeSecs = length(sound1)./freqS; 
         sound1TimeFrames = ceil(sound1TimeSecs / ifi);
         sound2TimeSecs = length(sound2)./freqS; 
         sound2TimeFrames = ceil(sound2TimeSecs / ifi);
@@ -304,11 +330,13 @@ for iB=iBStart:nBlocks %nBlocks;
 
         %Play Sound
         Screen('FillOval', window, circleColor1, centeredCircle, baseCircleDiam);
-        PsychPortAudio('FillBuffer', pahandle, sound1');
+        %PsychPortAudio('FillBuffer', pahandle, sound1');
 
         tWhen = GetSecs + (waitframes - 0.5)*ifi_window;
         tPredictedVisualOnset = PredictVisualOnsetForTime(window, tWhen);
-        PsychPortAudio('Start', pahandle, 1, tPredictedVisualOnset, 0);
+        sound1_play=soundBuffer{1, Syll1_No(iTrials)};
+        %PsychPortAudio('Start', pahandle, 1, tPredictedVisualOnset, 0);
+        PsychPortAudio('Start',sound1_play,repetitions,tPredictedVisualOnset,0);
 
         [~,trigFlipOn] = Screen('Flip', window, tWhen);
         offset = 0;
@@ -330,6 +358,8 @@ for iB=iBStart:nBlocks %nBlocks;
             Screen('Flip', window);
         end
 
+        PsychPortAudio('Stop',sound1_play);
+
         %============================================================
         %            GAP between sound 1 and sound 2
         %============================================================
@@ -347,11 +377,11 @@ for iB=iBStart:nBlocks %nBlocks;
 
         %Play Sound
         Screen('FillOval', window, circleColor1, centeredCircle, baseCircleDiam);
-        PsychPortAudio('FillBuffer', pahandle, sound2');
-
         tWhen = GetSecs + (waitframes - 0.5)*ifi_window;
         tPredictedVisualOnset = PredictVisualOnsetForTime(window, tWhen);
-        PsychPortAudio('Start', pahandle, 1, tPredictedVisualOnset, 0);
+        sound2_play=soundBuffer{1, Syll2_No(iTrials)};
+        %PsychPortAudio('Start', pahandle, 1, tPredictedVisualOnset, 0);
+        PsychPortAudio('Start',sound2_play,repetitions,tPredictedVisualOnset,0);
 
         [~,trigFlipOn] = Screen('Flip', window, tWhen);
         offset = 0;
@@ -372,6 +402,8 @@ for iB=iBStart:nBlocks %nBlocks;
             % Flip to the screen
             Screen('Flip', window);
         end
+
+        PsychPortAudio('Stop',sound2_play);
 
         %============================================
         %               Delay 1
@@ -457,7 +489,7 @@ for iB=iBStart:nBlocks %nBlocks;
 
         trialInfo{trialCount+1}.isiEnd=GetSecs;
         trialInfo{trialCount+1}.flipTimes = flipTimes;
-        save([subjectDir '/' subject '_Block_' num2str(iBStart) fileSuff '_TrialData.mat'],'trialInfo')
+        save([subjectDir '/' num2str(subject) '_Block_' num2str(iBStart) fileSuff '_TrialData.mat'],'trialInfo')
 
         trialCount=trialCount+1;
 
@@ -467,7 +499,7 @@ for iB=iBStart:nBlocks %nBlocks;
 
     Priority(0);
     [audiodata offset overflow tCaptureStart] = PsychPortAudio('GetAudioData', pahandle2);
-    filename = ([subject '_Block_' num2str(iB) fileSuff '_AllTrials.wav']);
+    filename = ([num2str(subject) '_Block_' num2str(iB) fileSuff '_AllTrials.wav']);
     audiowrite([subjectDir '/' filename],audiodata,freqR);
     PsychPortAudio('Stop', pahandle2);
     PsychPortAudio('Close', pahandle2);
