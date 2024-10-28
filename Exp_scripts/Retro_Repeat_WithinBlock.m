@@ -452,26 +452,34 @@ for iB=iBStart:nBlocks %nBlocks;
         %============================================
         %               Go
         %============================================
-
-        trialInfo{trialCount+1}.goStart=GetSecs;
-        for i=1:goTimeFrames
-            DrawFormattedText(window, go, 'center', 'center', [1 1 1]);
-            Screen('Flip', window);
+        if retro_trials(iTrials)~=5 % Repeat both
+            trialInfo{trialCount+1}.goStart=GetSecs;
+            for i=1:goTimeFrames
+                DrawFormattedText(window, go, 'center', 'center', [1 1 1]);
+                Screen('Flip', window);
+            end
+            
+            trialInfo{trialCount+1}.goEnd=GetSecs;
+        else
+            trialInfo{trialCount+1}.goEnd=trialInfo{trialCount+1}.delEnd;
         end
-
-        trialInfo{trialCount+1}.goEnd=GetSecs;
 
         %============================================
         %               Response
         %============================================
 
-        trialInfo{trialCount+1}.respStart=GetSecs;
-        for i=1:respTimeFrames
-            %  DrawFormattedText(window,'','center','center',[1 1 1]);
-            % Flip to the screen
-            Screen('Flip', window);end
-
-        trialInfo{trialCount+1}.respEnd=GetSecs;
+        if retro_trials(iTrials)~=5 % Repeat both
+            trialInfo{trialCount+1}.respStart=GetSecs;
+            for i=1:respTimeFrames
+                %  DrawFormattedText(window,'','center','center',[1 1 1]);
+                % Flip to the screen
+                Screen('Flip', window);
+            end
+    
+            trialInfo{trialCount+1}.respEnd=GetSecs;
+        else
+            trialInfo{trialCount+1}.respEnd=trialInfo{trialCount+1}.delEnd;
+        end
 
         %============================================
         %               ISI
