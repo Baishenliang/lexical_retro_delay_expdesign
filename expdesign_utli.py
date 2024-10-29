@@ -567,14 +567,18 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
             Delay2_content = syllables[1]
         elif retrocue == "DRP_BTH":
             Delay2_content = ''
-        delay_1 = delay["delay1_length"]+random_jitter(delay["delay_1_jitter_dev"],delay["jitter_random"])
-        delay_2 = delay["delay2_length"]+random_jitter(delay["delay_2_jitter_dev"],delay["jitter_random"])
-        ITI = delay['iti']+random_jitter(delay["iti_jitter_sd"],delay["jitter_random"])
+        Cue_brightness = 0.5 + random_jitter(0.5, "uniform")
+
+        # # The jitters are now directly controlled by the experimental scripts
+        # delay_1 = delay["delay1_length"]+random_jitter(delay["delay_1_jitter_dev"],delay["jitter_random"])
+        # delay_2 = delay["delay2_length"]+random_jitter(delay["delay_2_jitter_dev"],delay["jitter_random"])
+        # ITI = delay['iti']+random_jitter(delay["iti_jitter_sd"],delay["jitter_random"])
         # Construct trial information
-        if retrocue == "DRP_BTH":
-            Total_Trial_Length = stim["length"] * 2 + stim["gap"] + delay_1 + retro["retro_length"] + delay_2 + ITI
-        else:
-            Total_Trial_Length = stim["length"] * 2 + stim["gap"] + delay_1 + retro["retro_length"] + delay_2 + delay["response_length"] + ITI
+        # if retrocue == "DRP_BTH":
+        #     Total_Trial_Length = stim["length"] * 2 + stim["gap"] + delay_1 + retro["retro_length"] + delay_2 + ITI
+        # else:
+        #     Total_Trial_Length = stim["length"] * 2 + stim["gap"] + delay_1 + retro["retro_length"] + delay_2 + delay["response_length"] + ITI
+
         trial_info = {
             "Trial": trial_id,
             "Block": block_id_output,
@@ -582,11 +586,13 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
             "Syllable_1": syllables[0],
             "Syllable_2": syllables[1],
             "Retrocue": retrocue,
-            "Delay1_Length": delay_1,
-            "Delay2_Length": delay_2,
-            "Delay2_content": Delay2_content,
-            "ITI_Length": ITI,
-            "Total_Trial_Length": Total_Trial_Length
+            "Cue_brightness": Cue_brightness
+            # The jitters are now directly controlled by the experimental scripts
+            # "Delay1_Length": delay_1,
+            # "Delay2_Length": delay_2,
+            # "Delay2_content": Delay2_content,
+            # "ITI_Length": ITI,
+            # "Total_Trial_Length": Total_Trial_Length,
         }
 
         # Append the trial to the trial list
