@@ -1,4 +1,4 @@
-function [trial_No,block_No,Syll1_No,Syll2_No,Retro_No]=read_trials(subject,stim_Tags,retro_Tags)
+function [trial_No,block_No,Syll1_No,Syll2_No,Retro_No,Retro_Brightness]=read_trials(subject,stim_Tags,retro_Tags)
 
 filename = fullfile('trials',['subject_',num2str(subject),'_trial_list.xlsx']);
 data = readtable(filename);
@@ -9,11 +9,13 @@ block_No =  trial_No;
 Syll1_No =  trial_No;
 Syll2_No =  trial_No;
 Retro_No =  trial_No;
+Retro_Brightness =  trial_No;
 
 for i = 1:numRows
 
-    trial_No(i) =  data.Trial(i);
-    block_No(i) =  data.Block(i);
+    trial_No(i) = data.Trial(i);
+    block_No(i) = data.Block(i);
+    Retro_Brightness(i) = 0.2+0.8*data.Cue_brightness(i); % Brightness ranging from 0.2 to 1
 
     Syll1 = data.Syllable_1(i);
     switch Syll1{1}

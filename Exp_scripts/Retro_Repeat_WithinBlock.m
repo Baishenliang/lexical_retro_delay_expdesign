@@ -21,7 +21,9 @@ subjectDir = fullfile('data', [num2str(subject), '_' num2str(c(1)) num2str(c(2))
 %        load the sounds
 %============================================
 
-stim_Tags = {'she','do','ma'};
+%stim_Tags = {'she','do','ma'};
+stim_Tags = {'click1','click2','click3'};
+
 retro_Tags = {"REP_BTH","REV_BTH","REP_1ST","REP_2ND","DRP_BTH"};
 
 [sound_i, ~] = audioread(fullfile('stim',[stim_Tags{1},'.wav']));
@@ -81,7 +83,7 @@ InitializePsychSound(1);
 %           load trials infomation
 %============================================
 
-[~,block_No,Syll1_No,Syll2_No,Retro_No]=read_trials(subject,stim_Tags,retro_Tags);
+[~,block_No,Syll1_No,Syll2_No,Retro_No,Retro_Brightness]=read_trials(subject,stim_Tags,retro_Tags);
 
 %============================================
 %                screen setup
@@ -146,22 +148,23 @@ for iB=iBStart:nBlocks %nBlocks;
     syll1_trials=Syll1_No(trial_idx);
     syll2_trials=Syll2_No(trial_idx);
     retro_trials=Retro_No(trial_idx);
+    retro_brightness_trials=Retro_Brightness(trial_idx);
 
     Screen('TextSize', window, 100);
 
     nTrials=84; %168/4; %rotNumb*3;
 
-    cueTimeBaseSeconds= 2.0  ; % 1.5 up to 5/26/2019 % 0.5 Base Duration of Cue s
-    gapTimeSound12=0.25; % Time gap between sound1 and sound2
+    cueTimeBaseSeconds= 1  ; % 1.5 up to 5/26/2019 % 0.5 Base Duration of Cue s
+    gapTimeSound12=0.35; % Time gap between sound1 and sound2
     delTimeBaseSecondsA = 2; % 0.75 Base Duration of Del s
     goTimeBaseSeconds = 0.5; % 0.5 Base Duration Go Cue Duration s
     respTimeSecondsA = 2.5; % 1.5 Response Duration s
     isiTimeBaseSeconds = 0.87; % 0.5 Base Duration of ISI s
 
-    cueTimeJitterSeconds = 0.25; % 0.25; % Cue Jitter s
-    delTimeJitterSeconds = 0.25;% 0.5; % Del Jitter s
-    goTimeJitterSeconds = 0.25;% 0.25; % Go Jitter s
-    isiTimeJitterSeconds = 0.25; % 0.5; % ISI Jitter s
+    cueTimeJitterSeconds = 0.2; % 0.25; % Cue Jitter s
+    delTimeJitterSeconds = 0.2;% 0.5; % Del Jitter s
+    goTimeJitterSeconds = 0.2;% 0.25; % Go Jitter s
+    isiTimeJitterSeconds = 0.2; % 0.5; % ISI Jitter s
 
     soundBlockPlay=[];
 
@@ -315,6 +318,7 @@ for iB=iBStart:nBlocks %nBlocks;
         % write trial structure
         flipTimes = zeros(1,cueTimeBaseFrames);
         trialInfo{trialCount+1}.cue = cue;
+        trialInfo{trialCount+1}.cue_brightness = retro_brightness_trials(iTrials);
         trialInfo{trialCount+1}.sound1 = soundBlockPlay{iTrials}.name1;%trialStruct.sound{trialShuffle(2,iTrials)};
         trialInfo{trialCount+1}.sound2 = soundBlockPlay{iTrials}.name2;%trialStruct.sound{trialShuffle(2,iTrials)};
         trialInfo{trialCount+1}.go = go;
@@ -341,7 +345,7 @@ for iB=iBStart:nBlocks %nBlocks;
         [~,trigFlipOn] = Screen('Flip', window, tWhen);
         offset = 0;
         while offset == 0
-            status = PsychPortAudio('GetStatus', pahandle);
+            status = PsychPortAudio('GetStatus', sound1_play);
             offset = status.PositionSecs;
             WaitSecs('YieldSecs', 0.001);
         end
@@ -386,7 +390,7 @@ for iB=iBStart:nBlocks %nBlocks;
         [~,trigFlipOn] = Screen('Flip', window, tWhen);
         offset = 0;
         while offset == 0
-            status = PsychPortAudio('GetStatus', pahandle);
+            status = PsychPortAudio('GetStatus', sound2_play);
             offset = status.PositionSecs;
             WaitSecs('YieldSecs', 0.001);
         end
@@ -421,6 +425,8 @@ for iB=iBStart:nBlocks %nBlocks;
         %============================================
 
         % Draw Retrocue text
+
+        retroB=retro_brightness_trials(iTrials);
         for i = 1:cueTimeBaseFrames
             % Draw oval for 10 frames (duration of binary code with start/stop bit)
             if i<=3
@@ -429,7 +435,7 @@ for iB=iBStart:nBlocks %nBlocks;
 
             if i<=0.625*cueTimeBaseFrames
                 % Draw text
-                DrawFormattedText(window, cue, 'center', 'center', [1 1 1]);
+                DrawFormattedText(window, cue, 'center', 'center', [1 1 1]*retroB);
             end
             % Flip to the screen
             flipTimes(1,i) = Screen('Flip', window);
