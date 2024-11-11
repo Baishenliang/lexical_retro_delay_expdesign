@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import kstest
 import sys
+import os
 
 from setuptools.sandbox import save_path
 
@@ -130,7 +131,7 @@ def miniblock_length_math(trials_per_miniblock, stim, delay, retro, exp_totaltim
 
     return num_miniblock_inblock, optimal_block_count
 
-def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, retro):
+def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, retro,suggested_blocknum):
     """
     This function generates a spreadsheet for the experimental trials.
 
@@ -554,6 +555,18 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
     miniblock_id_output = 1
     trials_per_miniblock = len(best_trials) // (num_miniblock_inblock*optimal_block_count)
 
+    # Assign suggested block numbers:
+    total_trials = len(best_trials)
+    base_trials_per_block = total_trials // suggested_blocknum
+    extra_trials = total_trials % suggested_blocknum
+    trials_per_suggested_block = [base_trials_per_block] * suggested_blocknum
+    for extra_trial in range(extra_trials):
+        trials_per_suggested_block[extra_trial] += 1
+    suggested_blocks = []
+    for block_number_s, num_trials_s in enumerate(trials_per_suggested_block, start=1):
+        suggested_blocks.extend([block_number_s] * num_trials_s)
+
+    # Generate output trial list
     for itrial, trial in enumerate(best_trials):
         # Extract the syllable pair and retrocue type for the trial
         syllables, retrocue = trial
@@ -582,6 +595,7 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
         trial_info = {
             "Trial": trial_id,
             "Block": block_id_output,
+            "Suggested_Block":suggested_blocks[itrial],
             "Miniblock": miniblock_id_output,
             "Syllable_1": syllables[0],
             "Syllable_2": syllables[1],
@@ -606,10 +620,42 @@ def generate_triallist(num_miniblock_inblock, optimal_block_count, stim, delay, 
         if (itrial + 1) % trials_per_miniblock == 0 and miniblock_id_output < optimal_block_count*num_miniblock_inblock:
             miniblock_id_output += 1
 
+    syllable_scores_best, retrocue_scores_best = evaluate_trial_distribution(best_trials, stim["syllables"], retro["retro_names"])
+    syllable_scores_best_df = pd.DataFrame.from_dict(syllable_scores_best, orient='index')
+    retrocue_scores_best_df = pd.DataFrame.from_dict(retrocue_scores_best, orient='index')
+
     # Convert the trial list to a DataFrame
     df_trials = pd.DataFrame(trial_list)
 
     # Save the trial list to an Excel file
-    df_trials.to_excel("D:\\bsliang_Coganlabcode\\lexical_retro_delay_expdesign\\trial_list.xlsx", index=False)
+    base_path = "D:\\bsliang_Coganlabcode\\lexical_retro_delay_expdesign\\triallists"
+    Retro_saving_path = "D:\\bsliang_Coganlabcode\\Retrocue_taskscripts\\trials"
+
+    base_filename = "backup_trial_list"
+    base_filename_syllablescores = "backup_trial_list_syllablescores"
+    base_filename_retrocuescores = "backup_trial_list_retrocuescores"
+    file_extension = ".xlsx"
+
+    file_index = 1
+    while True:
+
+        file_name = f"{base_filename}_{file_index:03d}{file_extension}"
+        file_path = os.path.join(base_path, file_name)
+        file_path_retrosaving = os.path.join(Retro_saving_path, file_name)
+
+        file_name_syllablescores = f"{base_filename_syllablescores}_{file_index:03d}{file_extension}"
+        file_path_syllablescores = os.path.join(base_path, file_name_syllablescores)
+
+        file_name_retroscores = f"{base_filename_retrocuescores}_{file_index:03d}{file_extension}"
+        file_path_retroscores = os.path.join(base_path, file_name_retroscores)
+
+        if not os.path.exists(file_path):
+            break
+        file_index += 1
+
+    df_trials.to_excel(file_path, index=False)
+    df_trials.to_excel(file_path_retrosaving, index=False)
+    syllable_scores_best_df.to_excel(file_path_syllablescores, index=False)
+    retrocue_scores_best_df.to_excel(file_path_retroscores, index=False)
 
     return df_trials
