@@ -350,8 +350,8 @@ for iB=iBStart:nBlocks %nBlocks;
             WaitSecs('YieldSecs', 0.001);
         end
 
-        trialInfo{trialCount+1}.audioStart = status.StartTime;
-        trialInfo{trialCount+1}.audioAlignedTrigger = trigFlipOn;
+        trialInfo{trialCount+1}.audio1Start = status.StartTime;
+        trialInfo{trialCount+1}.audio1AlignedTrigger = trigFlipOn;
         fprintf('Expected audio-visual delay    is %6.6f msecs.\n', (status.StartTime - trigFlipOn)*1000.0)
 
         % Draw blank for duration of sound1
@@ -395,8 +395,8 @@ for iB=iBStart:nBlocks %nBlocks;
             WaitSecs('YieldSecs', 0.001);
         end
 
-        trialInfo{trialCount+1}.audioStart = status.StartTime;
-        trialInfo{trialCount+1}.audioAlignedTrigger = trigFlipOn;
+        trialInfo{trialCount+1}.audio2Start = status.StartTime;
+        trialInfo{trialCount+1}.audio2AlignedTrigger = trigFlipOn;
         fprintf('Expected audio-visual delay    is %6.6f msecs.\n', (status.StartTime - trigFlipOn)*1000.0)
 
         % Draw blank for duration of sound
@@ -414,11 +414,11 @@ for iB=iBStart:nBlocks %nBlocks;
         %============================================
 
 
-        trialInfo{trialCount+1}.delStart=GetSecs;
+        trialInfo{trialCount+1}.del1Start=GetSecs;
         for i=1:delTimeFrames
             Screen('Flip', window);
         end
-        trialInfo{trialCount+1}.delEnd=GetSecs;
+        trialInfo{trialCount+1}.del1End=GetSecs;
 
         %============================================
         %               RetroCue
@@ -447,19 +447,17 @@ for iB=iBStart:nBlocks %nBlocks;
         %               Delay 2
         %============================================
 
-        trialInfo{trialCount+1}.delStart=GetSecs;
         for i=1:delTimeFrames
             Screen('Flip', window);
         end
 
-        trialInfo{trialCount+1}.delEnd=GetSecs;
+        trialInfo{trialCount+1}.del2End=GetSecs;
 
 
         %============================================
         %               Go
         %============================================
         if retro_trials(iTrials)~=5 % Repeat both
-            trialInfo{trialCount+1}.goStart=GetSecs;
             for i=1:goTimeFrames
                 DrawFormattedText(window, go, 'center', 'center', [1 1 1]);
                 Screen('Flip', window);
@@ -467,7 +465,7 @@ for iB=iBStart:nBlocks %nBlocks;
             
             trialInfo{trialCount+1}.goEnd=GetSecs;
         else
-            trialInfo{trialCount+1}.goEnd=trialInfo{trialCount+1}.delEnd;
+            trialInfo{trialCount+1}.goEnd=trialInfo{trialCount+1}.del2End;
         end
 
         %============================================
@@ -475,7 +473,6 @@ for iB=iBStart:nBlocks %nBlocks;
         %============================================
 
         if retro_trials(iTrials)~=5 % Repeat both
-            trialInfo{trialCount+1}.respStart=GetSecs;
             for i=1:respTimeFrames
                 %  DrawFormattedText(window,'','center','center',[1 1 1]);
                 % Flip to the screen
@@ -484,7 +481,7 @@ for iB=iBStart:nBlocks %nBlocks;
     
             trialInfo{trialCount+1}.respEnd=GetSecs;
         else
-            trialInfo{trialCount+1}.respEnd=trialInfo{trialCount+1}.delEnd;
+            trialInfo{trialCount+1}.respEnd=trialInfo{trialCount+1}.del2End;
         end
 
         %============================================
@@ -494,7 +491,6 @@ for iB=iBStart:nBlocks %nBlocks;
         isiTimeSeconds = isiTimeBaseSeconds + isiTimeJitterSeconds*rand(1,1);
         isiTimeFrames=round(isiTimeSeconds / ifi );
 
-        trialInfo{trialCount+1}.isiStart=GetSecs;
         for i=1:isiTimeFrames
             DrawFormattedText(window,'' , 'center', 'center', [1 1 1]);
             % Flip to the screen
