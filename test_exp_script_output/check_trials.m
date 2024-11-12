@@ -3,7 +3,7 @@
 %% Load data 
 filename = 'Test1111.csv';
 data_out = readtable(filename);
-filename = 'subject_3_trial_list.xlsx';
+filename = 'backup_trial_list_001.xlsx';
 data_in = readtable(filename);
 
 %% Compare Sound1
@@ -53,13 +53,13 @@ Brightnesses = [Brightness_out_n' 0.2+0.8*Brightness_in];
 
 %% Calculate the time consumed for each block
 block1_onset=data_out.onset(1);
-block1_offset=data_out.onset(384)+data_out.duration(384);
+block1_offset=data_out.onset(464)+data_out.duration(464);
 block1_dur=block1_offset-block1_onset;
 disp(strjoin(['Block1 duration ' num2str(block1_dur/60) " mins"],""))
 % Block1 duration 8.2314 mins
 
-block2_onset=data_out.onset(385);
-block2_offset=data_out.onset(768)+data_out.duration(768);
+block2_onset=data_out.onset(465);
+block2_offset=data_out.onset(928)+data_out.duration(829);
 block2_dur=block2_offset-block2_onset;
 disp(strjoin(['Block2 duration ' num2str(block2_dur/60) " mins"],""))
 % Block2 duration 8.2319 mins
