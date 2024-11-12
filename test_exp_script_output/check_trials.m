@@ -1,7 +1,7 @@
 % Check whether the Retrocue Experiment trial output fit the input
 
 %% Load data 
-filename = '3_Pract.csv';
+filename = 'Test1111.csv';
 data_out = readtable(filename);
 filename = 'subject_3_trial_list.xlsx';
 data_in = readtable(filename);
