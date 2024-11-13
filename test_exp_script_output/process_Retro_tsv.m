@@ -4,13 +4,13 @@ clear all
 close all
 
 %% read data
-testing_folder='testing_20241112_malevoice';
-data_tsv = readtable(fullfile('data',testing_folder,'Test1112.csv'));
+testing_folder='testing_20241112_gTTS';
+data_tsv = readtable(fullfile('data',testing_folder,'Test1112_gTTS.csv'));
 data_tsv(strcmp(data_tsv{:, 3}, 'Record_onset'), :) = [];
 first_stims = readtable(fullfile('data',testing_folder,'first_stims.txt'));
 td = first_stims.Var1(1);
-load(fullfile('data',testing_folder,"Test1112_Block_1_TrialData.mat"));
-pc_onset = trialInfo{1,175}.audio1Start;
+load(fullfile('data',testing_folder,"Test1112_gTTS_Block_1_TrialData.mat"));
+pc_onset = trialInfo{1,232}.audio1Start;
 
 %% replace the onsets of the data_tsv by trialInfo.
 % Dont have to do it in the true experiment data (as the Retrocue task scrips have been updated)
@@ -29,7 +29,7 @@ for k = 1:length(indices_sound1)
     trial_tmp=[];
     trial_tmp=trialInfo{1,k};
 
-    if trial_tmp.block==4
+    if trial_tmp.block==5
 
         audio1Start_trialInfo=trial_tmp.audio1Start-pc_onset;
         fprintf(f_stims, '%.17f\t%.17f\t%s\n', td+audio1Start_trialInfo, ...

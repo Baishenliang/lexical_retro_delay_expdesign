@@ -1,11 +1,11 @@
 % Check whether the Retrocue Experiment trial output fit the input
 
 %% Load data 
-filename = 'Test1112.csv';
-testing_folder='testing_20241112_malevoice';
+filename = 'Test1112_gTTS.csv';
+testing_folder='testing_20241112_gTTS';
 data_out = readtable(fullfile('data',testing_folder,filename));
 data_out(strcmp(data_out{:, 3}, 'Record_onset'), :) = [];
-filename = 'Test1112_trial_list.csv';
+filename = 'Test1112_gTTS_trial_list.xlsx';
 data_in = readtable(fullfile('data',testing_folder,filename));
 
 %% Compare Sound1
@@ -58,13 +58,13 @@ block1_onset=data_out.onset(1);
 block1_offset=data_out.onset(464)+data_out.duration(464);
 block1_dur=block1_offset-block1_onset;
 disp(strjoin(['Block1 duration ' num2str(block1_dur/60) " mins"],""))
-% Block1 duration 7.9817 mins
+% Block1 duration 7.9644 mins
 
 block2_onset=data_out.onset(465);
 block2_offset=data_out.onset(928)+data_out.duration(829);
 block2_dur=block2_offset-block2_onset;
 disp(strjoin(['Block2 duration ' num2str(block2_dur/60) " mins"],""))
-% Block2 duration 7.9756 mins
+% Block2 duration 7.9592 mins
 
 %% Calculate the time for each trial stage
 indices_sound1 = 1:8:height(data_out);
