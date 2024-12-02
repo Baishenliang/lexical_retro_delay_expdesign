@@ -1,11 +1,11 @@
 % Check whether the Retrocue Experiment trial output fit the input
 
 %% Load data 
-filename = 'Test1112_gTTS.csv';
-testing_folder='testing_20241112_gTTS';
+filename = 'Test1126_Block_1.csv';
+testing_folder='testing_20241127_runwholeexp';
 data_out = readtable(fullfile('data',testing_folder,filename));
 data_out(strcmp(data_out{:, 3}, 'Record_onset'), :) = [];
-filename = 'Test1112_gTTS_trial_list.xlsx';
+filename = 'Test1126_trial_list.xlsx';
 data_in = readtable(fullfile('data',testing_folder,filename));
 
 %% Compare Sound1
