@@ -1,7 +1,7 @@
 % Check whether the Retrocue Experiment trial output fit the input
 clear all
 %% Load data 
-filename = 'Test1202_Block_1.csv';
+filename = 'Test1202_Block_3.csv';
 testing_folder='testing_20241202_runwholeexp';
 data_out = readtable(fullfile('data',testing_folder,filename));
 data_out(strcmp(data_out{:, 3}, 'Record_onset'), :) = [];
@@ -11,7 +11,7 @@ data_in = readtable(fullfile('data',testing_folder,filename));
 %% Compare Sound1
 indices_sound1 = 1:8:height(data_out);
 Sound1_out = data_out.trial_type(indices_sound1);
-Sound1_in = data_in.Syllable_1(1:length(indices_sound1));
+Sound1_in = data_in.Syllable_1(117:117-1+length(indices_sound1));
 Sound1s = [Sound1_out Sound1_in];
 
 % Sound1 checked. What were played by the experiment scripts mathced what
@@ -20,7 +20,7 @@ Sound1s = [Sound1_out Sound1_in];
 %% Compare Sound2
 indices_sound2 = 2:8:height(data_out);
 Sound2_out = data_out.trial_type(indices_sound2);
-Sound2_in = data_in.Syllable_2(1:length(indices_sound2));
+Sound2_in = data_in.Syllable_2(117:117-1+length(indices_sound2));
 Sound2s = [Sound2_out Sound2_in];
 
 % Sound2 checked. What were played by the experiment scripts mathced what
@@ -29,7 +29,7 @@ Sound2s = [Sound2_out Sound2_in];
 %% Compare Retrocues
 indices_RETRO = 4:8:height(data_out);
 RETRO_out = data_out.trial_type(indices_RETRO);
-RETRO_in = data_in.Retrocue(1:length(indices_RETRO));
+RETRO_in = data_in.Retrocue(117:117-1+length(indices_RETRO));
 RETROs = [RETRO_out RETRO_in];
 
 % Retrocues checked. What were played by the experiment scripts mathced what
@@ -47,7 +47,7 @@ Brightness_out_n = [];
 for bn = 1:length(Brightness_out)
     Brightness_out_n(bn)=str2num(Brightness_out{bn});
 end
-Brightness_in = data_in.Cue_brightness(1:length(indices_brightness));
+Brightness_in = data_in.Cue_brightness(117:117-1+length(indices_brightness));
 Brightnesses = [Brightness_out_n' 0.5+0.8*Brightness_in];
 
 % Cue brightness checked. What were played by the experiment scripts mathced what
@@ -57,14 +57,17 @@ Brightnesses = [Brightness_out_n' 0.5+0.8*Brightness_in];
 block1_onset=data_out.onset(1);
 block1_offset=data_out.onset(464)+data_out.duration(464);
 block1_dur=block1_offset-block1_onset;
-disp(strjoin(['Block1 duration ' num2str(block1_dur/60) " mins"],""))
-% Block1 duration 7.9644 mins
+disp(strjoin(['Block3 duration ' num2str(block1_dur/60) " mins"],""))
 
 block2_onset=data_out.onset(465);
-block2_offset=data_out.onset(928)+data_out.duration(829);
+block2_offset=data_out.onset(928)+data_out.duration(928);
 block2_dur=block2_offset-block2_onset;
-disp(strjoin(['Block2 duration ' num2str(block2_dur/60) " mins"],""))
-% Block2 duration 7.9592 mins
+disp(strjoin(['Block4 duration ' num2str(block2_dur/60) " mins"],""))
+
+block3_onset=data_out.onset(929);
+block3_offset=data_out.onset(1376)+data_out.duration(1376);
+block3_dur=block3_offset-block3_onset;
+disp(strjoin(['Block5 duration ' num2str(block3_dur/60) " mins"],""))
 
 %% Calculate the time for each trial stage
 indices_sound1 = 1:8:height(data_out);
