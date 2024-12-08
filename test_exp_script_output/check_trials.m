@@ -1,7 +1,7 @@
 % Check whether the Retrocue Experiment trial output fit the input
 clear all
 %% Load data 
-filename = 'Test20241208_Block_1.csv';
+filename = 'Test20241208_Block_2.csv';
 testing_folder='testing_20241208_newretrocue';
 data_out = readtable(fullfile('data',testing_folder,filename));
 data_out(strcmp(data_out{:, 3}, 'Record_onset'), :) = [];
@@ -11,7 +11,7 @@ data_in = readtable(fullfile('data',testing_folder,filename));
 %% Compare Sound1
 indices_sound1 = 1:8:height(data_out);
 Sound1_out = data_out.trial_type(indices_sound1);
-Sound1_in = data_in.Syllable_1(1:length(indices_sound1));
+Sound1_in = data_in.Syllable_1(59:59-1+length(indices_sound1));
 Sound1s = [Sound1_out Sound1_in];
 disp(Sound1s)
 
@@ -21,7 +21,7 @@ disp(Sound1s)
 %% Compare Sound2
 indices_sound2 = 2:8:height(data_out);
 Sound2_out = data_out.trial_type(indices_sound2);
-Sound2_in = data_in.Syllable_2(1:length(indices_sound2));
+Sound2_in = data_in.Syllable_2(59:59-1+length(indices_sound2));
 Sound2s = [Sound2_out Sound2_in];
 disp(Sound2s)
 
@@ -31,7 +31,7 @@ disp(Sound2s)
 %% Compare Retrocues
 indices_RETRO = 4:8:height(data_out);
 RETRO_out = data_out.trial_type(indices_RETRO);
-RETRO_in = data_in.Retrocue(1:length(indices_RETRO));
+RETRO_in = data_in.Retrocue(59:59-1+length(indices_RETRO));
 RETROs = [RETRO_out RETRO_in];
 disp(RETROs)
 
@@ -50,7 +50,7 @@ Brightness_out_n = [];
 for bn = 1:length(Brightness_out)
     Brightness_out_n(bn)=str2num(Brightness_out{bn});
 end
-Brightness_in = data_in.Cue_brightness(1:length(indices_brightness));
+Brightness_in = data_in.Cue_brightness(59:59-1+length(indices_brightness));
 Brightnesses = [Brightness_out_n' 0.5+0.8*Brightness_in];
 disp(Brightnesses)
 
