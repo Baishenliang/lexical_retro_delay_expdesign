@@ -13,11 +13,11 @@ for retro_Tag=retro_Tags
     
         % 3. Define the condition for white pixels (all RGB values close to 255)
         % Adjust the threshold to allow for slight variations, e.g., 240-255
-        threshold = 240;
+        threshold = 250;
         isWhite = red > threshold & green > threshold & blue > threshold;
     else
         % If the image is grayscale
-        threshold = 240;
+        threshold = 250;
         isWhite = img > threshold;
     end
     
@@ -33,18 +33,18 @@ end
 % 20241208 results:
 
 % REP_BTH
-% The numer of white pixels is: 1667.00
+% The numer of white pixels is: 1534.00
 % REV_BTH
-% The numer of white pixels is: 1668.00
+% The numer of white pixels is: 1523.00
 % REP_1ST
-% The numer of white pixels is: 1488.00
+% The numer of white pixels is: 1359.00
 % REP_2ND
-% The numer of white pixels is: 1862.00
+% The numer of white pixels is: 1662.00
 % DRP_BTH
-% The numer of white pixels is: 1675.00
+% The numer of white pixels is: 1485.00
 
-% star_size = 1675/2 = 837.5
-% 1_size = 1488 - 837.5 = 650.5
-% 2_size = 1862 - 837.5 = 1024.5
+% star_size = 1485/2 = 742.5
+% 1_size = 1359 - 742.5 = 616.5
+% 2_size = 1862 - 837.5 = 919.5
 
 % the size of the star is between the sizes of 1 and 2, successful.
