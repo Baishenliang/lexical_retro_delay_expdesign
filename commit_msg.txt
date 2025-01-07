@@ -1,0 +1,29 @@
+Test preprocessing to generate a Trials.mat for the Retrocue task.
+
+===================================
+Copy files  
+
+1. TrialInfo  
+from ~\Box\CoganLab\ECoG_Task_Data\Cogan_Task_Data\D117\Retro Cue\All Blocks:  
+D117_Block_1_TrialData.mat  
+ 
+2. EDF  
+(lacking, ask Nicole)  
+
+to:
+.\lexical_retro_delay_expdesign\data  
+
+See this page for ecog preprocessing:  
+https://coganlab.pages.oit.duke.edu/wiki/docs/ECoG_In_Unit/Preprocessing/Instructions/  
+
+3. ecog_preprocessing script (making Trials.mat)  
+from D:\coganlab_matlabenv\recon_code\ecog_preprocessing\ecog_preprocessing_Nicole.m (This file is originally stored in Nicole's desktop)  
+
+4. maketrigtimes script (transforming raw trigger files to trigger time, run as a step in ecog_preprocessing)  
+from D:\coganlab_matlabenv\recon_code\ecog_preprocessing\maketrigtimes_Nicole.m  
+
+to:
+.\lexical_retro_delay_expdesign\  
+
+
+
