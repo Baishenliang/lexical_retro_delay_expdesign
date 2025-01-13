@@ -13,10 +13,10 @@ switch subj_task
 
     case 'D117_012' % Retro Cue
         cd '.\data'
-        taskstim = 'Retro Cue';
+        taskstim = 'Retro_Cue';
         subj = 'D117';
-        edf_filename = '.\data\'; %needed
-        ptb_trialInfo = '.\data\D117_Block_1_TrialData';
+        edf_filename = 'D117 241208 COGAN_RETROCUE.EDF'; %needed
+        ptb_trialInfo = 'D117_Block_1_TrialData.mat';
         taskdate = '241208'; 
         ieeg_prefix = [subj, '_', taskstim, '_']; % (auto-fills)
         rec = '001'; %session number
@@ -89,38 +89,76 @@ save('trigTimes_audioAligned', 'trigTimes_audioAligned');
 %% (optional) run view_stim_wavs_on_neural_mic.m to visualize the alignment between microphone and stimulus waves
 
 
-%% create a generic Trials.mat (for NON-Sternberg tasks)
+%% create a generic Trials.mat (for Retro Cue)
 
-% For phoneme sequencing, Lexical Delay, and Sentence Rep
-
-% copy Trials.mat to [taskdate]/mat
-% copy trialInfo.mat to [taskdate]/mat
 load trialInfo.mat;
-load trigTimes_audioAligned.mat;
+load trigTimes.mat;
+
 if iscell(trialInfo)
     trialInfo = cell2mat(trialInfo);
 end
-assert(length(trialInfo)==length(trigTimes_audioAligned));
+
 h = edfread_fast(edf_filename);
 Trials = struct();
+Rec_onsets = [];
+trigT_idx = 0;
 for A=1:numel(trialInfo) % change to number of trials
+    if A==1
+        % block 1 starting: get the block 1 record onsets
+        trigT_idx=trigT_idx+1;
+        Rec_onsets=floor(trigTimes(trigT_idx) * 30000 / h.frequency(1));
+    else
+        block_current=trialInfo(A).block;
+        block_last=trialInfo(A-1).block;
+        if block_last~=block_current
+            % block N starting: get the block N record onsets
+            trigT_idx=trigT_idx+1;
+            Rec_onsets=[Rec_onsets,...
+                floor(trigTimes(trigT_idx) * 30000 / h.frequency(1))];
+        end
+    end
+
+    % Info
     Trials(A).Subject=subj;
     Trials(A).Trial=A;
     Trials(A).Rec=rec;
     Trials(A).Day=taskdate;
     Trials(A).FilenamePrefix=[ieeg_prefix taskdate];
-    Trials(A).Start = floor(trigTimes_audioAligned(A) * 30000 / h.frequency(1));
-    Trials(A).Auditory=Trials(A).Start+floor((trialInfo(A).audioStart-trialInfo(A).cueStart)* 30000);
-    Trials(A).Go=Trials(A).Start-floor( ...
-        (trialInfo(A).cueStart- ...
-        trialInfo(A).goStart)* 30000);
-    Trials(A).StartCode=1;
-    Trials(A).AuditoryCode=26;
-    Trials(A).GoCode=51;
-    Trials(A).Noisy=0;
-    Trials(A).NoResponse=0;
+
+    % Get Auditory1 Start
+    trigT_idx=trigT_idx+1;
+    Trials(A).audio1Start = floor(trigTimes(trigT_idx) * 30000 / h.frequency(1));
+
+    % Get Auditory2 Start
+    trigT_idx=trigT_idx+1;
+    Trials(A).audio2Start = floor(trigTimes(trigT_idx) * 30000 / h.frequency(1));
+
+    % Test trigger times for Auditory 1 2 starts
+    Aud_onset_diff_from_trialInfo = trialInfo(A).audio2Start - trialInfo(A).audio1Start;
+    Aud_onset_diff_from_Trials = (Trials(A).audio2Start - Trials(A).audio1Start)/3e4;
+    if abs(Aud_onset_diff_from_trialInfo-Aud_onset_diff_from_Trials)>=0.01
+        % Report a misalignment if it is more than 10ms gap
+        error('Auditory gap not matched with trialInfo')
+    else
+        disp(['Auditory gap matched with trialInfo with ', ...
+            num2str((Aud_onset_diff_from_trialInfo-Aud_onset_diff_from_Trials)*1e3), ' gap in ms']);
+    end
+
+    % Get Retrocue Start
+    trigT_idx=trigT_idx+1;
+    Trials(A).RetroStart = floor(trigTimes(trigT_idx) * 30000 / h.frequency(1));
+
+    if ~strcmp(trialInfo(A).cue,'0')
+
+        % If not a DROP BOTH trial, get Go Start
+        trigT_idx=trigT_idx+1;
+        Trials(A).GoStart = floor(trigTimes(trigT_idx) * 30000 / h.frequency(1));
+    else
+        Trials(A).GoStart=Trials(A).RetroStart;
+    end
+
 end
 
 save('Trials.mat', 'Trials');
-%save('Trials2.mat','Trials');
+save('Rec_onsets.mat','Rec_onsets');
 %if there are multiple files, also save as Trials1, Trials2, etc.

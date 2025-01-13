@@ -5,16 +5,16 @@ h = edfread_fast(edf_filename);
 figure; plot(trigger)
 
 %% find areas surrounding triggers and set to zero
-to_zero = [1:2.44e6 ...
-   5.68e6:length(trigger)];
+to_zero = [1:3.56e6 ...
+   9.17e6:length(trigger)];
 trigger(to_zero) = 0;
 figure; plot(trigger); 
 
 
 %% identify triggers
-thresh = 2.25e5; % change this accordingly - scale should be set to e5 for ALL tasks!!! other than Envelope Tracking (e4)
+thresh = 2.55e5; % change this accordingly - scale should be set to e5 for ALL tasks!!! other than Envelope Tracking (e4)
 freq = h.frequency(1); % change this accordingly
-seconds_between_triggers = 1.5; % change this accordingly
+seconds_between_triggers = 0.5; % change this accordingly
 
 num_samples_between_triggers = seconds_between_triggers * freq; % 2 seconds
 
