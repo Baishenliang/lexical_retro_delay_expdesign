@@ -2,7 +2,7 @@
 %% first create a subject folder, e.g. D29/lexical_dr_2x_within_nodelay/part1/ and place task .edf file there
 % create a subject case below and fill in variables
 clear;
-subj_task = 'D117_012';
+subj_task = 'D120';
 trigger_chan_index = [];
 mic_chan_index = [];
 
@@ -12,6 +12,20 @@ mic_chan_index = [];
 switch subj_task
 
     case 'D117_012' % Retro Cue
+        cd '.\data'
+        taskstim = 'Retro_Cue';
+        subj = 'D117';
+        edf_filename = 'D117 241208 COGAN_RETROCUE.EDF'; %needed
+        ptb_trialInfo = 'D117_Block_1_TrialData.mat';
+        taskdate = '241208'; 
+        ieeg_prefix = [subj, '_', taskstim, '_']; % (auto-fills)
+        rec = '001'; %session number
+        %%%%%%%%
+        trigger_chan_index = 257; % DC1
+        mic_chan_index = 258; % DC1+1
+        neural_chan_index = [1:60, 65:122, 129:233];
+
+    case 'D120_012' % Retro Cue
         cd '.\data'
         taskstim = 'Retro_Cue';
         subj = 'D117';
